@@ -35,3 +35,5 @@ go.work.sum
 # tmp
 tmp/
 tmp/build-errors.log
+
+data/
