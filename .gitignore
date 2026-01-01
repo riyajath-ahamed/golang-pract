@@ -36,4 +36,6 @@ go.work.sum
 tmp/
 tmp/build-errors.log
 
-data/
+data/GO_test_5m.csv
+
+**node_modules/

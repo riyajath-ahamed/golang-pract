@@ -13,8 +13,14 @@ func Run(cfg config.ETLConfig, store *store.AnalyticsStore) error {
 
 	go Extract(cfg, extractCh)
 	StartTrasformWorkers(cfg, extractCh, aggregateCh)
-	Aggregate(aggregateCh, store)
+
+	for batch := range aggregateCh {
+		for _, t := range batch {
+			store.Add(t)
+		}
+	}
 
 	return nil
+	//TODO: error handling
 
 }
