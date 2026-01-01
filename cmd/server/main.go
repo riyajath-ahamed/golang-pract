@@ -1,15 +1,22 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/labstack/echo/v4"
+	"golang-asses/internal/api"
+	"golang-asses/internal/config"
+	"golang-asses/internal/scheduler"
+	"golang-asses/internal/store"
+	"runtime"
 )
 
 func main() {
-	app := echo.New()
-	app.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-	app.Start(":8080")
+
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	cfg := config.DefaultETLConfig()
+	store := store.NewAnalyticsStore()
+
+	go scheduler.StartCron(cfg, store)
+
+	api.StartServer(cfg.Metrics, store)
+
 }
