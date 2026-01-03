@@ -10,67 +10,70 @@ import (
 )
 
 func RevenueByCountry(s *store.AnalyticsStore) echo.HandlerFunc {
+
 	return func(c echo.Context) error {
+		var result []store.CountryRevenueResp
 
 		page, _ := strconv.Atoi(c.QueryParam("page"))
-		pageSize, _ := strconv.Atoi(c.QueryParam("page_size"))
-		sortBy := c.QueryParam("sort_by")
-		order := c.QueryParam("order")
+		pageSize, _ := strconv.Atoi(c.QueryParam("limit"))
+		sortBy := c.QueryParam("sortby")
+		orderBy := c.QueryParam("ordery")
+		productsLimit, _ := strconv.Atoi(c.QueryParam("products_limit"))
 
 		if page <= 0 {
 			page = 1
 		}
-		if pageSize <= 0 || pageSize > 100 {
-			pageSize = 20
+		if pageSize <= 0 {
+			pageSize = 10
 		}
 		if sortBy == "" {
-			sortBy = "total_revenue"
+			sortBy = "country"
 		}
-		if order == "" {
-			order = "desc"
+		if orderBy == "" {
+			orderBy = "desc"
+		}
+		if productsLimit <= 0 {
+			productsLimit = 3
 		}
 
-		var result []*store.CountryProductRevenue
-		for _, products := range s.CountryProduct {
-			for _, v := range products {
-				result = append(result, v)
+		for country, products := range s.CountryProduct {
+			var totalRevenue float64
+			var totalTransactions int
+			var productList []*store.CountryProductRevenue
+
+			for _, p := range products {
+				totalRevenue += p.TotalRevenue
+				totalTransactions += p.TransactionCount
+				productList = append(productList, p)
 			}
+
+			sort.Slice(productList, func(i, j int) bool {
+				return productList[i].TotalRevenue > productList[j].TotalRevenue
+			})
+			totalProducts := len(productList)
+			if len(productList) > productsLimit {
+				productList = productList[:productsLimit]
+			}
+
+			result = append(result, store.CountryRevenueResp{
+				Country:           country,
+				TotalRevenue:      totalRevenue,
+				TotalTransactions: totalTransactions,
+				Products:          productList,
+				TotalProducts:     totalProducts,
+			})
 		}
 
 		sort.Slice(result, func(i, j int) bool {
-			var less bool
-
-			switch sortBy {
-			case "transactions":
-				less = result[i].TransactionCount < result[j].TransactionCount
-			default: // total_revenue
-				less = result[i].TotalRevenue < result[j].TotalRevenue
-			}
-
-			if order == "asc" {
-				return less
-			}
-			return !less
+			return result[i].TotalRevenue > result[j].TotalRevenue
 		})
 
-		totalItems := len(result)
-		start := (page - 1) * pageSize
-		end := start + pageSize
-
-		if start >= totalItems {
-			result = []*store.CountryProductRevenue{}
-		} else {
-			if end > totalItems {
-				end = totalItems
-			}
-			result = result[start:end]
-		}
-
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"page":        page,
-			"page_size":   pageSize,
-			"total_items": totalItems,
-			"data":        result,
+			"page":           page,
+			"page_size":      pageSize,
+			"total_items":    len(result),
+			"products_limit": productsLimit,
+			"data":           result,
 		})
 	}
 }

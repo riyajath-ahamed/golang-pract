@@ -12,6 +12,14 @@ type CountryProductRevenue struct {
 	TransactionCount int
 }
 
+type CountryRevenueResp struct {
+	Country           string                   `json:"country"`
+	TotalRevenue      float64                  `json:"total_revenue"`
+	TotalTransactions int                      `json:"total_transactions"`
+	Products          []*CountryProductRevenue `json:"products"`
+	TotalProducts     int                      `json:"total_products"`
+}
+
 type RegionRevenue struct {
 	Region    string
 	Revenue   float64
