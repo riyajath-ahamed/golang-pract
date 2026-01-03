@@ -1,6 +1,7 @@
 package api
 
 import (
+	"golang-asses/internal/config"
 	"golang-asses/internal/store"
 	"net/http"
 	"sort"
@@ -9,9 +10,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RevenueByCountry(s *store.AnalyticsStore) echo.HandlerFunc {
+func RevenueByCountry(s *store.AnalyticsStore, cfg *config.Metrics) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
+		isETLRunning := cfg.IsRunning
+		if isETLRunning {
+			return c.JSON(http.StatusServiceUnavailable, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusServiceUnavailable,
+				"message": "ETL is running, please try again later",
+			})
+		}
 		var result []store.CountryRevenueResp
 
 		page, _ := strconv.Atoi(c.QueryParam("page"))
@@ -78,7 +87,7 @@ func RevenueByCountry(s *store.AnalyticsStore) echo.HandlerFunc {
 	}
 }
 
-func TopProducts(s *store.AnalyticsStore) echo.HandlerFunc {
+func TopProducts(s *store.AnalyticsStore, cfg *config.Metrics) echo.HandlerFunc {
 	type Resp struct {
 		Product string
 		Count   int
@@ -86,6 +95,14 @@ func TopProducts(s *store.AnalyticsStore) echo.HandlerFunc {
 	}
 
 	return func(c echo.Context) error {
+		isETLRunning := cfg.IsRunning
+		if isETLRunning {
+			return c.JSON(http.StatusServiceUnavailable, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusServiceUnavailable,
+				"message": "ETL is running, please try again later",
+			})
+		}
 		// fmt.Println("ProductCount", s.ProductCount)
 		// fmt.Println("ProductStock", s.ProductStock)
 
@@ -112,7 +129,7 @@ func TopProducts(s *store.AnalyticsStore) echo.HandlerFunc {
 	}
 }
 
-func MonthlySales(s *store.AnalyticsStore) echo.HandlerFunc {
+func MonthlySales(s *store.AnalyticsStore, cfg *config.Metrics) echo.HandlerFunc {
 	type Resp struct {
 		Month string `json:"month"`
 		Sales int    `json:"sales"`
@@ -124,6 +141,16 @@ func MonthlySales(s *store.AnalyticsStore) echo.HandlerFunc {
 	}
 
 	return func(c echo.Context) error {
+
+		isETLRunning := cfg.IsRunning
+		if isETLRunning {
+			return c.JSON(http.StatusServiceUnavailable, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusServiceUnavailable,
+				"message": "ETL is running, please try again later",
+			})
+		}
+
 		var result []Resp
 
 		for i, sales := range s.MonthlySales {
@@ -147,7 +174,7 @@ func MonthlySales(s *store.AnalyticsStore) echo.HandlerFunc {
 	}
 }
 
-func TopRegions(s *store.AnalyticsStore) echo.HandlerFunc {
+func TopRegions(s *store.AnalyticsStore, cfg *config.Metrics) echo.HandlerFunc {
 	type Resp struct {
 		Region    string  `json:"region"`
 		Revenue   float64 `json:"revenue"`
@@ -155,6 +182,15 @@ func TopRegions(s *store.AnalyticsStore) echo.HandlerFunc {
 	}
 
 	return func(c echo.Context) error {
+		isETLRunning := cfg.IsRunning
+		if isETLRunning {
+			return c.JSON(http.StatusServiceUnavailable, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusServiceUnavailable,
+				"message": "ETL is running, please try again later",
+			})
+		}
+
 		var result []Resp
 
 		for _, v := range s.RegionStats {

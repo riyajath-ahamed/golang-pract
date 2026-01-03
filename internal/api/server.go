@@ -13,14 +13,14 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func StartServer(metrics config.Metrics, store *store.AnalyticsStore) {
+func StartServer(metrics *config.Metrics, store *store.AnalyticsStore) {
 	app := echo.New()
 
 	app.Use(middleware.Logger())
 	app.Use(middleware.Recover())
 	app.Use(middleware.Gzip())
 
-	registerRoutes(app, store)
+	registerRoutes(app, store, metrics)
 
 	app.Logger.Info("server started on port 8080")
 
