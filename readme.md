@@ -7,6 +7,7 @@
 - chart to highlight the months with the highest sales volume
 - Top 30 Regions by Revenue -> top 30 regions with the highest total revenue and items sold using an appropriate chart.
 
+
 trasnsaction_id, transaction_date, user_id, country, region, product_id, product_name, category, price, quantity, total_price, stock_quantity, added_date
 
 ## The Dataset isnt in the repo, so please download and put it in the data folder
@@ -28,3 +29,4 @@ npm run dev
  - https://github.com/air-verse/air
  - https://echo.labstack.com/guide/
  - https://github.com/golang-standards/project-layout
+ - https://medium.com/@ravishankarsr.rav/building-a-high-performance-buffered-etl-pipeline-in-go-c516ca8e2772
