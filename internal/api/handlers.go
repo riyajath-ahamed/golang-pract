@@ -4,14 +4,33 @@ import (
 	"golang-asses/internal/store"
 	"net/http"
 	"sort"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
 
 func RevenueByCountry(s *store.AnalyticsStore) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var result []*store.CountryProductRevenue
 
+		page, _ := strconv.Atoi(c.QueryParam("page"))
+		pageSize, _ := strconv.Atoi(c.QueryParam("page_size"))
+		sortBy := c.QueryParam("sort_by")
+		order := c.QueryParam("order")
+
+		if page <= 0 {
+			page = 1
+		}
+		if pageSize <= 0 || pageSize > 100 {
+			pageSize = 20
+		}
+		if sortBy == "" {
+			sortBy = "total_revenue"
+		}
+		if order == "" {
+			order = "desc"
+		}
+
+		var result []*store.CountryProductRevenue
 		for _, products := range s.CountryProduct {
 			for _, v := range products {
 				result = append(result, v)
@@ -19,10 +38,40 @@ func RevenueByCountry(s *store.AnalyticsStore) echo.HandlerFunc {
 		}
 
 		sort.Slice(result, func(i, j int) bool {
-			return result[i].TotalRevenue > result[j].TotalRevenue
+			var less bool
+
+			switch sortBy {
+			case "transactions":
+				less = result[i].TransactionCount < result[j].TransactionCount
+			default: // total_revenue
+				less = result[i].TotalRevenue < result[j].TotalRevenue
+			}
+
+			if order == "asc" {
+				return less
+			}
+			return !less
 		})
 
-		return c.JSON(http.StatusOK, result)
+		totalItems := len(result)
+		start := (page - 1) * pageSize
+		end := start + pageSize
+
+		if start >= totalItems {
+			result = []*store.CountryProductRevenue{}
+		} else {
+			if end > totalItems {
+				end = totalItems
+			}
+			result = result[start:end]
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"page":        page,
+			"page_size":   pageSize,
+			"total_items": totalItems,
+			"data":        result,
+		})
 	}
 }
 
@@ -33,22 +82,30 @@ func TopProducts(s *store.AnalyticsStore) echo.HandlerFunc {
 		Stock   int
 	}
 
-	var r []Resp
-	limit := 20
-	for p, c := range s.ProductCount {
-		r = append(r, Resp{p, c, s.ProductStock[p]})
-	}
-
-	sort.Slice(r, func(i, j int) bool {
-		return r[i].Count > r[j].Count
-	})
-
-	if len(r) > limit {
-		r = r[:limit]
-	}
-
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, r)
+		// fmt.Println("ProductCount", s.ProductCount)
+		// fmt.Println("ProductStock", s.ProductStock)
+
+		var r []Resp
+		limit := 20
+		for p, cnt := range s.ProductCount {
+			r = append(r, Resp{p, cnt, s.ProductStock[p]})
+		}
+
+		sort.Slice(r, func(i, j int) bool {
+			return r[i].Count > r[j].Count
+		})
+
+		if len(r) > limit {
+			r = r[:limit]
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"page":        1,
+			"page_size":   20,
+			"total_items": len(r),
+			"data":        r,
+		})
 	}
 }
 
@@ -78,7 +135,12 @@ func MonthlySales(s *store.AnalyticsStore) echo.HandlerFunc {
 			return result[i].Sales > result[j].Sales
 		})
 
-		return c.JSON(http.StatusOK, result)
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"page":        1,
+			"page_size":   12,
+			"total_items": len(result),
+			"data":        result,
+		})
 	}
 }
 
@@ -110,6 +172,11 @@ func TopRegions(s *store.AnalyticsStore) echo.HandlerFunc {
 			result = result[:30]
 		}
 
-		return c.JSON(http.StatusOK, result)
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"page":        1,
+			"page_size":   30,
+			"total_items": len(result),
+			"data":        result,
+		})
 	}
 }

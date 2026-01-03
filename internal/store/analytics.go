@@ -5,10 +5,11 @@ import (
 )
 
 type CountryProductRevenue struct {
-	Country      string
-	ProductName  string
-	TotalRevenue float64
-	Transactions int
+	Country          string
+	ProductName      string
+	TotalRevenue     float64
+	Transactions     int
+	TransactionCount int
 }
 
 type RegionRevenue struct {
@@ -42,20 +43,31 @@ func (s *AnalyticsStore) Add(t models.Transaction) {
 	cp := s.CountryProduct[t.Country][t.ProductName]
 	if cp == nil {
 		cp = &CountryProductRevenue{
-			Country:     t.Country,
-			ProductName: t.ProductName,
+			Country:          t.Country,
+			ProductName:      t.ProductName,
+			TotalRevenue:     0,
+			TransactionCount: 0,
 		}
 		s.CountryProduct[t.Country][t.ProductName] = cp
 	}
 	cp.TotalRevenue += t.TotalPrice
 	cp.Transactions++
 
+	// =========================================================================
+	// =========================================================================
+
 	s.ProductCount[t.ProductName] += t.Quantity
 	s.ProductStock[t.ProductName] = t.StockQuantity
+
+	// =========================================================================
+	// =========================================================================
 
 	if !t.TransactionDate.IsZero() {
 		s.MonthlySales[t.TransactionDate.Month()-1] += t.Quantity
 	}
+
+	// =========================================================================
+	// =========================================================================
 
 	rs := s.RegionStats[t.Region]
 	if rs == nil {
