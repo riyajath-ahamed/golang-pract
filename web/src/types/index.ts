@@ -1,13 +1,18 @@
 export type {
   AsyncState,
+  CountryData,
+  CountryProduct,
   CountryRevenue,
   DashboardStats,
-  MonthlySales,
   MonthlySalesData,
-  ProductCount,
+  MonthlySalesItem,
+  MonthlySalesResponse,
+  ProductCountItem,
+  ProductCountResponse,
   ProductSales,
   RegionData,
-  RegionRevenue,
-  RevenueByCountry,
+  RegionDataItem,
+  TopRegionsResponse,
+  RevenueByCountryResponse,
 } from "./analytics";
 

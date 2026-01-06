@@ -1,17 +1,17 @@
 import { api } from "../utils/axios";
 import type {
-  MonthlySales,
-  ProductCount,
-  RegionRevenue,
-  RevenueByCountry,
+  MonthlySalesResponse,
+  TopRegionsResponse,
+  RevenueByCountryResponse,
+  ProductCountResponse,
 } from "../types/analytics";
 
 // API endpoints matching Go backend routes
 const ENDPOINTS = {
   REVENUE_BY_COUNTRY: "/api/revenue-by-country",
-  TOP_PRODUCTS: "/api/products/top",
-  TOP_REGIONS: "/api/regions/top",
-  MONTHLY_SALES: "/api/sales/monthly",
+  TOP_PRODUCTS: "/api/top-products",
+  TOP_REGIONS: "/api/top-regions",
+  MONTHLY_SALES: "/api/monthly-sales",
   HEALTH: "/health",
 } as const;
 
@@ -19,8 +19,8 @@ export const analyticsApi = {
   /**
    * Fetch revenue aggregated by country
    */
-  getRevenueByCountry: async (): Promise<RevenueByCountry> => {
-    const { data } = await api.get<RevenueByCountry>(
+  getRevenueByCountry: async (): Promise<RevenueByCountryResponse> => {
+    const { data } = await api.get<RevenueByCountryResponse>(
       ENDPOINTS.REVENUE_BY_COUNTRY
     );
     return data;
@@ -29,24 +29,24 @@ export const analyticsApi = {
   /**
    * Fetch top products by quantity sold
    */
-  getTopProducts: async (): Promise<ProductCount> => {
-    const { data } = await api.get<ProductCount>(ENDPOINTS.TOP_PRODUCTS);
+  getTopProducts: async (): Promise<ProductCountResponse> => {
+    const { data } = await api.get<ProductCountResponse>(ENDPOINTS.TOP_PRODUCTS);
     return data;
   },
 
   /**
    * Fetch top regions by revenue
    */
-  getTopRegions: async (): Promise<RegionRevenue> => {
-    const { data } = await api.get<RegionRevenue>(ENDPOINTS.TOP_REGIONS);
+  getTopRegions: async (): Promise<TopRegionsResponse> => {
+    const { data } = await api.get<TopRegionsResponse>(ENDPOINTS.TOP_REGIONS);
     return data;
   },
 
   /**
    * Fetch monthly sales volume data
    */
-  getMonthlySales: async (): Promise<MonthlySales> => {
-    const { data } = await api.get<MonthlySales>(ENDPOINTS.MONTHLY_SALES);
+  getMonthlySales: async (): Promise<MonthlySalesResponse> => {
+    const { data } = await api.get<MonthlySalesResponse>(ENDPOINTS.MONTHLY_SALES);
     return data;
   },
 

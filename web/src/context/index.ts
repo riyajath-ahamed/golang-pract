@@ -1,5 +1,4 @@
 export {
-  AnalyticsProvider,
   useAnalytics,
   useDashboardStats,
   useMonthlySalesData,
