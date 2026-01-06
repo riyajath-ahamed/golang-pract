@@ -4,6 +4,7 @@ import (
 	"context"
 	"golang-asses/internal/config"
 	"golang-asses/internal/store"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,6 +20,12 @@ func StartServer(metrics *config.Metrics, store *store.AnalyticsStore) {
 	app.Use(middleware.Logger())
 	app.Use(middleware.Recover())
 	app.Use(middleware.Gzip())
+	//app.Use(middleware.CORS())
+	app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	registerRoutes(app, store, metrics)
 
