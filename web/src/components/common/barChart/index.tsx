@@ -29,13 +29,15 @@ interface BarChartProps {
   height?: number | string;
   showLegend?: boolean;
   horizontal?: boolean;
+  color? : string;
 }
 
 const BarChartComponent = ({
   data,
-  height = 400,
+  height = 500,
   showLegend = true,
   horizontal = false,
+  color = "#4F46E5",
 }: BarChartProps) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
@@ -70,7 +72,7 @@ const BarChartComponent = ({
       grid: {
         left: "3%",
         right: "4%",
-        bottom: showLegend ? "15%" : "3%",
+        bottom: showLegend ? "10%" : "3%",
         top: "8%",
         containLabel: true,
       },
@@ -79,7 +81,7 @@ const BarChartComponent = ({
         data: horizontal ? undefined : data.categories,
         axisTick: { show: false },
         axisLine: { lineStyle: { color: "#E2E8F0" } },
-        axisLabel: { color: "#64748B" },
+        axisLabel: { color: "#64748B", fontSize: 12, rotate: 90 },
       },
       yAxis: {
         type: horizontal ? "category" : "value",
@@ -96,7 +98,7 @@ const BarChartComponent = ({
         barMaxWidth: 40,
         itemStyle: {
           borderRadius: horizontal ? [0, 4, 4, 0] : [4, 4, 0, 0],
-          color: s.color,
+          color: s.color || color,
         },
         emphasis: {
           focus: "series",
@@ -106,7 +108,7 @@ const BarChartComponent = ({
     };
 
     chartInstance.current.setOption(option);
-  }, [data, showLegend, horizontal]);
+  }, [data, showLegend, horizontal, color]);
 
   // Handle resize
   useEffect(() => {

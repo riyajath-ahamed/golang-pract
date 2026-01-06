@@ -11,12 +11,10 @@ type Props = {
         series: {
             name: string;
             data: number[];
-            color?: string;
         }[];
     };
     height?: number | string;
     showLegend?: boolean;
-    horizontal?: boolean;
 }
 
 echarts.use([
@@ -28,7 +26,7 @@ echarts.use([
 
 
 
-const AreaChartComponent = ({ data, height = 400, showLegend = true, horizontal = false }: Props) => {
+const AreaChartComponent = ({ data, height = 500, showLegend = true }: Props) => {
     const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
 
@@ -69,26 +67,26 @@ const AreaChartComponent = ({ data, height = 400, showLegend = true, horizontal 
       xAxis: {
         type: 'category',
         boundaryGap: false,
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        data: data.categories,
       },
       yAxis: {
         type: 'value'
       },
       series: [
         {
-          data: [820, 932, 901, 934, 1290, 1330, 1320],
+          data: data.series[0].data,
           type: 'line',
-          areaStyle: {}
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+              offset: 0,
+              color: 'rgba(99, 102, 241, 0.5)',
+            }, {
+              offset: 1,
+              color: 'rgba(99, 102, 241, 0)',
+            }]),
+          },
         }
       ],
-    //   series: data.series.map((s) => ({
-    //     name: s.name,
-    //     type: "line",
-    //     areaStyle: {
-    //       color: s.color,
-    //     },
-    //     data: s.data,
-    //   })),
     };
 
     chartInstance.current.setOption(option);

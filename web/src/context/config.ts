@@ -26,10 +26,10 @@ export type Action =
 
 
   export interface AnalyticsActions {
-    fetchRevenueByCountry: () => Promise<void>;
-    fetchTopProducts: () => Promise<void>;
-    fetchTopRegions: () => Promise<void>;
-    fetchMonthlySales: () => Promise<void>;
+    fetchRevenueByCountry: (force?: boolean) => Promise<void>;
+    fetchTopProducts: (force?: boolean) => Promise<void>;
+    fetchTopRegions: (force?: boolean) => Promise<void>;
+    fetchMonthlySales: (force?: boolean) => Promise<void>;
     fetchAllData: () => Promise<void>;
     refreshData: () => Promise<void>;
     resetState: () => void;

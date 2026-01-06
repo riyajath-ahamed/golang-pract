@@ -1,17 +1,26 @@
-import { Box, Card, Heading, Text } from "@chakra-ui/react";
+import { Box, Card, Heading, Skeleton, Text } from "@chakra-ui/react";
 import AreaChartComponent from "../components/common/areaChart";
+import { useEffect, useMemo } from "react";
+import { useMonthlySalesData } from "../context";
 
 const SalesVolume = () => {
-  const data = {
+  
+  const { list, isLoading, fetch } = useMonthlySalesData();
 
-    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  const data = useMemo(() => ({
+    categories: list.map((item) => item.month),
     series: [
       {
         name: "Sales",
-        data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
+        data: list.map((item) => item.sales),
       },
     ],
-  }
+  }), [list]);
+
   return (
     <Box>
       <Box mb={8}>
@@ -33,7 +42,11 @@ const SalesVolume = () => {
           <Heading size="md" fontWeight="semibold" mb={4}>
             Months with the highest sales volume
           </Heading>
-          <AreaChartComponent data={data} height={400} />
+          {isLoading ? (
+            <Skeleton height={400} />
+          ) : (
+            <AreaChartComponent data={data} height={400} />
+          )}
         </Card.Body>
       </Card.Root>
     </Box>

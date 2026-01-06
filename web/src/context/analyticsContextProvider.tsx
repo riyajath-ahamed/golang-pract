@@ -25,11 +25,15 @@ export const AnalyticsContext = createContext<AnalyticsContextType | null>(
 export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(analyticsReducer, initialState);
 
-  const fetchRevenueByCountry = useCallback(async () => {
+  // Fetch only if not already loaded and not currently loading
+  const fetchRevenueByCountry = useCallback(async (force = false) => {
+    // Skip if already loaded or loading (unless forced)
+    if (!force && (state.revenueByCountry.data || state.revenueByCountry.isLoading)) {
+      return;
+    }
     dispatch({ type: ActionTypes.FETCH_REVENUE_BY_COUNTRY_START });
     try {
       const data = await analyticsApi.getRevenueByCountry();
-
       dispatch({
         type: ActionTypes.FETCH_REVENUE_BY_COUNTRY_SUCCESS,
         payload: data,
@@ -44,9 +48,12 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
         payload: errorMessage,
       });
     }
-  }, []);
+  }, [state.revenueByCountry.data, state.revenueByCountry.isLoading]);
 
-  const fetchTopProducts = useCallback(async () => {
+  const fetchTopProducts = useCallback(async (force = false) => {
+    if (!force && (state.topProducts.data || state.topProducts.isLoading)) {
+      return;
+    }
     dispatch({ type: ActionTypes.FETCH_TOP_PRODUCTS_START });
     try {
       const data = await analyticsApi.getTopProducts();
@@ -62,9 +69,12 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
         payload: errorMessage,
       });
     }
-  }, []);
+  }, [state.topProducts.data, state.topProducts.isLoading]);
 
-  const fetchTopRegions = useCallback(async () => {
+  const fetchTopRegions = useCallback(async (force = false) => {
+    if (!force && (state.topRegions.data || state.topRegions.isLoading)) {
+      return;
+    }
     dispatch({ type: ActionTypes.FETCH_TOP_REGIONS_START });
     try {
       const data = await analyticsApi.getTopRegions();
@@ -80,9 +90,12 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
         payload: errorMessage,
       });
     }
-  }, []);
+  }, [state.topRegions.data, state.topRegions.isLoading]);
 
-  const fetchMonthlySales = useCallback(async () => {
+  const fetchMonthlySales = useCallback(async (force = false) => {
+    if (!force && (state.monthlySales.data || state.monthlySales.isLoading)) {
+      return;
+    }
     dispatch({ type: ActionTypes.FETCH_MONTHLY_SALES_START });
     try {
       const data = await analyticsApi.getMonthlySales();
@@ -98,7 +111,7 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
         payload: errorMessage,
       });
     }
-  }, []);
+  }, [state.monthlySales.data, state.monthlySales.isLoading]);
 
   const fetchAllData = useCallback(async () => {
     await Promise.all([
@@ -114,7 +127,15 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
     fetchMonthlySales,
   ]);
 
-  const refreshData = fetchAllData;
+  // Force refresh all data (bypasses cache check)
+  const refreshData = useCallback(async () => {
+    await Promise.all([
+      fetchRevenueByCountry(true),
+      fetchTopProducts(true),
+      fetchTopRegions(true),
+      fetchMonthlySales(true),
+    ]);
+  }, [fetchRevenueByCountry, fetchTopProducts, fetchTopRegions, fetchMonthlySales]);
 
   const resetState = useCallback(() => {
     dispatch({ type: ActionTypes.RESET_STATE });

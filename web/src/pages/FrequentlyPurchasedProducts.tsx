@@ -1,22 +1,29 @@
-import { Box, Card, Heading, Text } from "@chakra-ui/react";
+import { Box, Card, Heading, Skeleton, Text } from "@chakra-ui/react";
 import BarChartComponent from "../components/common/barChart";
+import { useTopProducts } from "../context";
+import { useEffect, useMemo } from "react";
 
 const FrequentlyPurchasedProducts = () => {
-  const data = {
-    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec","Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"],
+
+  const { list, isLoading, fetch } = useTopProducts();
+
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  const data = useMemo(() => ({
+    categories: list.map((item) => item.product),
     series: [
       {
-        name: "Revenue",
-        data: [320, 332, 301, 334, 390, 320, 332, 301, 334, 390,320, 332, 301, 334, 390,320, 332, 301, 334, 390],
-        color: "#6366F1",
-      },
+        name: "Products",
+        data: list.map((item) => item.count),
+      },  
       {
-        name: "Expenses",
-        data: [220, 182, 191, 234, 290, 220, 182, 191, 234, 290,220, 182, 191, 234, 290,220, 182, 191, 234, 290],
-        color: "#F59E0B",
+        name: "Stock",
+        data: list.map((item) => item.stock),
       },
     ],
-  }
+  }), [list]);  
   return (
     <Box>
       <Box mb={8}>
@@ -39,7 +46,11 @@ const FrequentlyPurchasedProducts = () => {
               Top 20 Frequently Purchased Products
           </Heading>
 
-          <BarChartComponent data={data} />
+          {isLoading ? (
+            <Skeleton height={400} />
+          ) : (
+            <BarChartComponent data={data} />
+          )}
         </Card.Body>
       </Card.Root>
     </Box>

@@ -8,10 +8,10 @@ import { useDashboardStats } from "../context";
 const Dashboard = () => {
   const { stats, isLoading, refresh } = useDashboardStats();
 
-  // Fetch data on mount
+
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, []);
 
   const statCards = [
     {

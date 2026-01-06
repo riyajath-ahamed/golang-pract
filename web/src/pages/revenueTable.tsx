@@ -24,8 +24,6 @@ const RevenueTable = () => {
             Analytics Overview
           </Heading>
           <CountryLevelRevenueTable />
-
-
         </Card.Body>
       </Card.Root>
     </Box>
