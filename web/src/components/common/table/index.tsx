@@ -1,46 +1,51 @@
-import { AgGridReact } from 'ag-grid-react'
-import React, { useState } from 'react'
 import type { ColDef } from "ag-grid-community";
+import { AgGridReact } from "ag-grid-react";
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'; 
+import { useEffect, useMemo } from "react";
+import { useRevenueByCountry } from "../../../context";
+import type { CountryRevenue } from "../../../types";
 
-type Props = {}
+ModuleRegistry.registerModules([AllCommunityModule]);
 
-interface IRow {
-    make: string;
-    model: string;
-    price: number;
-    electric: boolean;
-  }
+const CountryLevelRevenueTable = () => {
+  const { list, isLoading, fetch } = useRevenueByCountry();
 
-const CountryLevelRevenueTable = (props: Props) => {
-    const [rowData, setRowData] = useState<IRow[]>([
-        { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-        { make: "Ford", model: "F-Series", price: 33850, electric: false },
-        { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-        { make: "Mercedes", model: "EQA", price: 48890, electric: true },
-        { make: "Fiat", model: "500", price: 15774, electric: false },
-        { make: "Nissan", model: "Juke", price: 20675, electric: false },
-      ]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
-      const [colDefs, setColDefs] = useState<ColDef<IRow>[]>([
-        { field: "make" },
-        { field: "model" },
-        { field: "price" },
-        { field: "electric" },
-      ]);
+  const colDefs = useMemo<ColDef<CountryRevenue>[]>(
+    () => [
+      { field: "country", headerName: "Country", sortable: true, filter: true },
+      {
+        field: "revenue",
+        headerName: "Revenue",
+        sortable: true,
+        filter: true,
+        valueFormatter: (params) =>
+          params.value?.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+          }),
+      },
+    ],
+    []
+  );
 
-      const defaultColDef: ColDef = {
-        flex: 1,
-      };
-    
+  const defaultColDef: ColDef = {
+    flex: 1,
+  };
+
   return (
     <div style={{ height: 500 }}>
-        <AgGridReact
-            rowData={rowData}
-            columnDefs={colDefs}
-            defaultColDef={defaultColDef}
-        />
+      <AgGridReact
+        rowData={list}
+        columnDefs={colDefs}
+        defaultColDef={defaultColDef}
+        loading={isLoading}
+      />
     </div>
-  )
-}
+  );
+};
 
-export default CountryLevelRevenueTable
+export default CountryLevelRevenueTable;

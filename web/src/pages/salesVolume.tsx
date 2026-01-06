@@ -1,6 +1,17 @@
 import { Box, Card, Heading, Text } from "@chakra-ui/react";
+import AreaChartComponent from "../components/common/areaChart";
 
 const SalesVolume = () => {
+  const data = {
+
+    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    series: [
+      {
+        name: "Sales",
+        data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
+      },
+    ],
+  }
   return (
     <Box>
       <Box mb={8}>
@@ -22,7 +33,7 @@ const SalesVolume = () => {
           <Heading size="md" fontWeight="semibold" mb={4}>
             Months with the highest sales volume
           </Heading>
-          
+          <AreaChartComponent data={data} height={400} />
         </Card.Body>
       </Card.Root>
     </Box>

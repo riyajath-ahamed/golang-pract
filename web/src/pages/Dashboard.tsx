@@ -1,34 +1,43 @@
 import { Box, Card, Flex, Grid, Heading, Icon, Text, VStack } from "@chakra-ui/react";
 import { Activity, ArrowDownUp, Globe2, GlobeLockIcon, Package, TrendingUp } from "lucide-react";
+import { useEffect } from "react";
 import StatCard from "../components/common/statCard";
 import ETLJobStatus from "../components/common/status";
+import { useDashboardStats } from "../context";
 
 const Dashboard = () => {
-  const stats = [
+  const { stats, isLoading, refresh } = useDashboardStats();
+
+  // Fetch data on mount
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const statCards = [
     {
       title: "Countries",
-      value: "100",
+      value: isLoading ? "..." : stats.totalCountries.toLocaleString(),
       icon: Globe2,
       iconColor: "green.600",
       iconBg: "green.100",
     },
     {
       title: "Regions",
-      value: "100",
+      value: isLoading ? "..." : stats.totalRegions.toLocaleString(),
       icon: GlobeLockIcon,
       iconColor: "blue.600",
       iconBg: "blue.100",
     },
     {
       title: "Products",
-      value: "1,234",
+      value: isLoading ? "..." : stats.totalProducts.toLocaleString(),
       icon: Package,
       iconColor: "purple.600",
       iconBg: "purple.100",
     },
     {
       title: "Transactions",
-      value: "100",
+      value: isLoading ? "..." : stats.totalTransactions.toLocaleString(),
       icon: ArrowDownUp,
       iconColor: "orange.600",
       iconBg: "orange.100",
@@ -57,7 +66,7 @@ const Dashboard = () => {
         gap={6}
         mb={8}
       >
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <StatCard key={stat.title} {...stat} />
         ))}
       </Grid>
