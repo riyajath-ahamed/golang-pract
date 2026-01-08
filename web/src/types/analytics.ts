@@ -76,6 +76,21 @@ export interface CountryRevenue {
   products: CountryProduct[];
 }
 
+export interface ETLStatusData {
+  is_running: boolean;
+  start_time: string;
+  end_time: string;
+  duration: string;
+  rows_processed: number;
+}
+
+// API response wrapper from backend
+export interface ETLStatusResponse {
+  status: string;
+  message: string;
+  etl_status: ETLStatusData;
+}
+
 export interface ProductSales {
   product: string;
   count: number;

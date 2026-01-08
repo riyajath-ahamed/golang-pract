@@ -12,6 +12,7 @@ import analyticsApi from "../api";
 import type {
   CountryRevenue,
   DashboardStats,
+  ETLStatusData,
   MonthlySalesData,
   ProductSales,
   RegionData,
@@ -113,18 +114,41 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [state.monthlySales.data, state.monthlySales.isLoading]);
 
+  const fetchETLStatus = useCallback(async (force = false) => {
+    if (!force && (state.etlStatus.data || state.etlStatus.isLoading)) {
+      return;
+    }
+    dispatch({ type: ActionTypes.FETCH_ETL_STATUS_START });
+    try {
+      const data = await analyticsApi.getETLStatus();
+      dispatch({
+        type: ActionTypes.FETCH_ETL_STATUS_SUCCESS,
+        payload: data,
+      });
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch ETL status";
+      dispatch({
+        type: ActionTypes.FETCH_ETL_STATUS_ERROR,
+        payload: errorMessage,
+      });
+    }
+  }, [state.etlStatus.data, state.etlStatus.isLoading]);
+
   const fetchAllData = useCallback(async () => {
     await Promise.all([
       fetchRevenueByCountry(),
       fetchTopProducts(),
       fetchTopRegions(),
       fetchMonthlySales(),
+      fetchETLStatus(),
     ]);
   }, [
     fetchRevenueByCountry,
     fetchTopProducts,
     fetchTopRegions,
     fetchMonthlySales,
+    fetchETLStatus,
   ]);
 
   // Force refresh all data (bypasses cache check)
@@ -134,8 +158,9 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
       fetchTopProducts(true),
       fetchTopRegions(true),
       fetchMonthlySales(true),
+      fetchETLStatus(true),
     ]);
-  }, [fetchRevenueByCountry, fetchTopProducts, fetchTopRegions, fetchMonthlySales]);
+  }, [fetchRevenueByCountry, fetchTopProducts, fetchTopRegions, fetchMonthlySales, fetchETLStatus]);
 
   const resetState = useCallback(() => {
     dispatch({ type: ActionTypes.RESET_STATE });
@@ -184,6 +209,10 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, [state.monthlySales.data]);
 
+  const etlStatusData = useMemo((): ETLStatusData | null => {
+    return state.etlStatus.data;
+  }, [state.etlStatus.data]);
+
   const dashboardStats = useMemo((): DashboardStats => {
     return {
       totalCountries: countryRevenueList.length,
@@ -198,12 +227,14 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
       state.revenueByCountry.isLoading ||
       state.topProducts.isLoading ||
       state.topRegions.isLoading ||
-      state.monthlySales.isLoading,
+      state.monthlySales.isLoading ||
+      state.etlStatus.isLoading,
     [
       state.revenueByCountry.isLoading,
       state.topProducts.isLoading,
       state.topRegions.isLoading,
       state.monthlySales.isLoading,
+      state.etlStatus.isLoading,
     ]
   );
 
@@ -213,13 +244,15 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
         state.revenueByCountry.error ||
         state.topProducts.error ||
         state.topRegions.error ||
-        state.monthlySales.error
+        state.monthlySales.error ||
+        state.etlStatus.error
       ),
     [
       state.revenueByCountry.error,
       state.topProducts.error,
       state.topRegions.error,
       state.monthlySales.error,
+      state.etlStatus.error,
     ]
   );
 
@@ -231,11 +264,13 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
       topProducts: state.topProducts,
       topRegions: state.topRegions,
       monthlySales: state.monthlySales,
+      etlStatus: state.etlStatus,
       // Actions
       fetchRevenueByCountry,
       fetchTopProducts,
       fetchTopRegions,
       fetchMonthlySales,
+      fetchETLStatus,
       fetchAllData,
       refreshData,
       resetState,
@@ -254,6 +289,7 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
       fetchTopProducts,
       fetchTopRegions,
       fetchMonthlySales,
+      fetchETLStatus,
       fetchAllData,
       refreshData,
       resetState,
@@ -262,6 +298,7 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
       regionDataList,
       monthlySalesData,
       dashboardStats,
+      etlStatusData,
       isAnyLoading,
       hasAnyError,
     ]

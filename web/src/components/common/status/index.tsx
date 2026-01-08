@@ -2,6 +2,7 @@ import { Box, HStack, Icon, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import {
   AlertCircle,
   CheckCircle,
+  Clock,
   LineChart,
   ListEndIcon,
   ListStart,
@@ -71,6 +72,7 @@ const ETLJobStatus = ({
   startTime,
   endTime,
   status,
+  duration,
 }: ETLJobStatusType) => {
   const StatusIcon = STATUS_ICON_MAP[status];
 
@@ -103,6 +105,11 @@ const ETLJobStatus = ({
           label="Status"
           value={status === "success" ? "Complete" : "Running"}
           icon={<StatusIcon />}
+        />
+        <StatusCard
+          label="Duration"
+          value={duration+" s"}
+          icon={<Clock />}
         />
       </SimpleGrid>
     </Box>

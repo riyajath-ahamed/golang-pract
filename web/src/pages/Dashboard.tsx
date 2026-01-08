@@ -4,13 +4,15 @@ import { useEffect } from "react";
 import StatCard from "../components/common/statCard";
 import ETLJobStatus from "../components/common/status";
 import { useDashboardStats } from "../context";
+import { useETLStatus } from "../context/AnalyticsContext";
 
 const Dashboard = () => {
   const { stats, isLoading, refresh } = useDashboardStats();
-
+  const { data, isLoading: isETLStatusLoading, fetch: fetchETLStatus } = useETLStatus();
 
   useEffect(() => {
     refresh();
+    fetchETLStatus();
   }, []);
 
   const statCards = [
@@ -92,13 +94,19 @@ const Dashboard = () => {
                 <TrendingUp />
               </Icon>
             </Flex>
-            <ETLJobStatus
-              rowsProcessed={1000}
-              startTime={new Date("2025-01-01T00:00:00Z")}
-              endTime={new Date("2025-01-02T00:00:00Z")}
-              duration={1000}
-              status="success"
-            />
+            {isETLStatusLoading || !data ? (
+              <Box p={4} textAlign="center" color="gray.500">
+                Loading ETL status...
+              </Box>
+            ) : (
+              <ETLJobStatus
+                rowsProcessed={data.rows_processed}
+                startTime={new Date(data.start_time)}
+                endTime={new Date(data.end_time)}
+                duration={parseInt(data.duration)}
+                status={data.is_running ? "info" : "success"}
+              />
+            )}
           </Card.Body>
         </Card.Root>
 

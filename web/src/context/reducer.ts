@@ -71,6 +71,21 @@ export const analyticsReducer = (state: AnalyticsState, action: Action): Analyti
           ...state,
           monthlySales: { ...state.monthlySales, isLoading: false, error: action.payload },
         };
+      case ActionTypes.FETCH_ETL_STATUS_START:
+        return {
+          ...state,
+          etlStatus: { ...state.etlStatus, isLoading: true, error: null },
+        };
+      case ActionTypes.FETCH_ETL_STATUS_SUCCESS:
+        return {
+          ...state,
+          etlStatus: { data: action.payload, isLoading: false, error: null },
+        };
+      case ActionTypes.FETCH_ETL_STATUS_ERROR:
+        return {
+          ...state,
+          etlStatus: { ...state.etlStatus, isLoading: false, error: action.payload },
+        };
   
       // Reset
       case ActionTypes.RESET_STATE:

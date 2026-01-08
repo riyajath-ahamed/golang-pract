@@ -36,3 +36,8 @@ export const useDashboardStats = () => {
   const { dashboardStats, isAnyLoading, hasAnyError, fetchAllData } = useAnalytics();
   return { stats: dashboardStats, isLoading: isAnyLoading, hasError: hasAnyError, refresh: fetchAllData };
 };
+
+export const useETLStatus = () => {
+  const { etlStatus, fetchETLStatus } = useAnalytics();
+  return { ...etlStatus, fetch: fetchETLStatus };
+};

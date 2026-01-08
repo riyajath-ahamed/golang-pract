@@ -1,4 +1,4 @@
-import type { AsyncState, CountryRevenue, DashboardStats, MonthlySalesResponse, MonthlySalesData, ProductCountResponse, ProductSales, RegionData, TopRegionsResponse, RevenueByCountryResponse } from "../types/analytics";
+import type { AsyncState, CountryRevenue, DashboardStats, MonthlySalesResponse, MonthlySalesData, ProductCountResponse, ProductSales, RegionData, TopRegionsResponse, RevenueByCountryResponse, ETLStatusData } from "../types/analytics";
 import type { ActionTypes } from "./actionType";
 
 export interface AnalyticsState {
@@ -6,6 +6,7 @@ export interface AnalyticsState {
     topProducts: AsyncState<ProductCountResponse>;
     topRegions: AsyncState<TopRegionsResponse>;
     monthlySales: AsyncState<MonthlySalesResponse>;
+    etlStatus: AsyncState<ETLStatusData>;
   }
 
 
@@ -22,6 +23,9 @@ export type Action =
   | { type: typeof ActionTypes.FETCH_MONTHLY_SALES_START }
   | { type: typeof ActionTypes.FETCH_MONTHLY_SALES_SUCCESS; payload: MonthlySalesResponse }
   | { type: typeof ActionTypes.FETCH_MONTHLY_SALES_ERROR; payload: string }
+  | { type: typeof ActionTypes.FETCH_ETL_STATUS_START }
+  | { type: typeof ActionTypes.FETCH_ETL_STATUS_SUCCESS; payload: ETLStatusData }
+  | { type: typeof ActionTypes.FETCH_ETL_STATUS_ERROR; payload: string }
   | { type: typeof ActionTypes.RESET_STATE };
 
 
@@ -30,6 +34,7 @@ export type Action =
     fetchTopProducts: (force?: boolean) => Promise<void>;
     fetchTopRegions: (force?: boolean) => Promise<void>;
     fetchMonthlySales: (force?: boolean) => Promise<void>;
+    fetchETLStatus: (force?: boolean) => Promise<void>;
     fetchAllData: () => Promise<void>;
     refreshData: () => Promise<void>;
     resetState: () => void;

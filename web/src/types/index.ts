@@ -8,6 +8,8 @@ export type {
   MonthlySalesItem,
   MonthlySalesResponse,
   ProductCountItem,
+  ETLStatusData,
+  ETLStatusResponse,
   ProductCountResponse,
   ProductSales,
   RegionData,

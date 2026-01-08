@@ -1,4 +1,4 @@
-import type { AsyncState, MonthlySalesResponse, ProductCountResponse, TopRegionsResponse, RevenueByCountryResponse } from "../types/analytics";
+import type { AsyncState, MonthlySalesResponse, ProductCountResponse, TopRegionsResponse, RevenueByCountryResponse, ETLStatusData } from "../types/analytics";
 import type { AnalyticsState } from "./config";
 
 const createInitialAsyncState = <T,>(): AsyncState<T> => ({
@@ -12,4 +12,5 @@ export const initialState: AnalyticsState = {
     topProducts: createInitialAsyncState<ProductCountResponse>(),
     topRegions: createInitialAsyncState<TopRegionsResponse>(),
     monthlySales: createInitialAsyncState<MonthlySalesResponse>(),
+    etlStatus: createInitialAsyncState<ETLStatusData>(),
   };

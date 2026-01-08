@@ -4,6 +4,8 @@ import type {
   TopRegionsResponse,
   RevenueByCountryResponse,
   ProductCountResponse,
+  ETLStatusResponse,
+  ETLStatusData,
 } from "../types/analytics";
 
 // API endpoints matching Go backend routes
@@ -13,6 +15,7 @@ const ENDPOINTS = {
   TOP_REGIONS: "/api/top-regions",
   MONTHLY_SALES: "/api/monthly-sales",
   HEALTH: "/health",
+  ETL_STATUS: "/etl-status",
 } as const;
 
 export const analyticsApi = {
@@ -30,7 +33,9 @@ export const analyticsApi = {
    * Fetch top products by quantity sold
    */
   getTopProducts: async (): Promise<ProductCountResponse> => {
-    const { data } = await api.get<ProductCountResponse>(ENDPOINTS.TOP_PRODUCTS);
+    const { data } = await api.get<ProductCountResponse>(
+      ENDPOINTS.TOP_PRODUCTS
+    );
     return data;
   },
 
@@ -46,7 +51,9 @@ export const analyticsApi = {
    * Fetch monthly sales volume data
    */
   getMonthlySales: async (): Promise<MonthlySalesResponse> => {
-    const { data } = await api.get<MonthlySalesResponse>(ENDPOINTS.MONTHLY_SALES);
+    const { data } = await api.get<MonthlySalesResponse>(
+      ENDPOINTS.MONTHLY_SALES
+    );
     return data;
   },
 
@@ -56,6 +63,14 @@ export const analyticsApi = {
   healthCheck: async (): Promise<{ status: string; message: string }> => {
     const { data } = await api.get(ENDPOINTS.HEALTH);
     return data;
+  },
+
+  /**
+   * Check ETL status
+   */
+  getETLStatus: async (): Promise<ETLStatusData> => {
+    const { data } = await api.get<ETLStatusResponse>(ENDPOINTS.ETL_STATUS);
+    return data.etl_status;
   },
 };
 
