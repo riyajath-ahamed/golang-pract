@@ -23,7 +23,7 @@ type ETLConfig struct {
 func DefaultETLConfig() ETLConfig {
 	return ETLConfig{
 		Workers:   runtime.NumCPU(),
-		BatchSize: 1000,
+		BatchSize: 2000,
 		DataPath:  "data/GO_test_5m.csv",
 		Metrics: &Metrics{
 			RowsProcessed: 0,

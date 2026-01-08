@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Run(cfg config.ETLConfig, store *store.AnalyticsStore) error {
+func Run(cfg config.ETLConfig, analyticsStore *store.AnalyticsStore) error {
 
 	cfg.Metrics.StartTime = time.Now()
 	cfg.Metrics.IsRunning = true
@@ -28,10 +28,22 @@ func Run(cfg config.ETLConfig, store *store.AnalyticsStore) error {
 
 	for batch := range aggregateCh {
 		for _, t := range batch {
-			store.Add(t)
+			analyticsStore.Add(t)
 			cfg.Metrics.RowsProcessed++
 		}
 	}
+
+	// Save aggregated data to CSV files
+	fmt.Println("Saving aggregated data to CSV...")
+	if err := analyticsStore.SaveToCSV(); err != nil {
+		fmt.Printf("Error saving to CSV: %v\n", err)
+		return err
+	}
+	fmt.Println("Data saved to CSV successfully")
+
+	// Clear in-memory data to free up memory
+	analyticsStore.ClearMemory()
+	fmt.Println("In-memory data cleared")
 
 	cfg.Metrics.EndTime = time.Now()
 	cfg.Metrics.Duration = cfg.Metrics.EndTime.Sub(cfg.Metrics.StartTime)

@@ -21,6 +21,17 @@ func RevenueByCountry(s *store.AnalyticsStore, cfg *config.Metrics) echo.Handler
 				"message": "ETL is running, please try again later",
 			})
 		}
+
+		// Load data from CSV instead of memory
+		countryProduct, err := store.LoadCountryProductFromCSV()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusInternalServerError,
+				"message": "Failed to load data: " + err.Error(),
+			})
+		}
+
 		var result []store.CountryRevenueResp
 
 		page, _ := strconv.Atoi(c.QueryParam("page"))
@@ -45,7 +56,7 @@ func RevenueByCountry(s *store.AnalyticsStore, cfg *config.Metrics) echo.Handler
 			productsLimit = 3
 		}
 
-		for country, products := range s.CountryProduct {
+		for country, products := range countryProduct {
 			var totalRevenue float64
 			var totalTransactions int
 			var productList []*store.CountryProductRevenue
@@ -103,13 +114,30 @@ func TopProducts(s *store.AnalyticsStore, cfg *config.Metrics) echo.HandlerFunc 
 				"message": "ETL is running, please try again later",
 			})
 		}
-		// fmt.Println("ProductCount", s.ProductCount)
-		// fmt.Println("ProductStock", s.ProductStock)
+
+		// Load data from CSV instead of memory
+		productCount, err := store.LoadProductCountFromCSV()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusInternalServerError,
+				"message": "Failed to load product count: " + err.Error(),
+			})
+		}
+
+		productStock, err := store.LoadProductStockFromCSV()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusInternalServerError,
+				"message": "Failed to load product stock: " + err.Error(),
+			})
+		}
 
 		var r []Resp
 		limit := 20
-		for p, cnt := range s.ProductCount {
-			r = append(r, Resp{p, cnt, s.ProductStock[p]})
+		for p, cnt := range productCount {
+			r = append(r, Resp{p, cnt, productStock[p]})
 		}
 
 		sort.Slice(r, func(i, j int) bool {
@@ -151,9 +179,19 @@ func MonthlySales(s *store.AnalyticsStore, cfg *config.Metrics) echo.HandlerFunc
 			})
 		}
 
+		// Load data from CSV instead of memory
+		monthlySales, err := store.LoadMonthlySalesFromCSV()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusInternalServerError,
+				"message": "Failed to load monthly sales: " + err.Error(),
+			})
+		}
+
 		var result []Resp
 
-		for i, sales := range s.MonthlySales {
+		for i, sales := range monthlySales {
 			result = append(result, Resp{
 				Month: months[i],
 				Sales: sales,
@@ -191,9 +229,19 @@ func TopRegions(s *store.AnalyticsStore, cfg *config.Metrics) echo.HandlerFunc {
 			})
 		}
 
+		// Load data from CSV instead of memory
+		regionStats, err := store.LoadRegionStatsFromCSV()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"status":  "error",
+				"code":    http.StatusInternalServerError,
+				"message": "Failed to load region stats: " + err.Error(),
+			})
+		}
+
 		var result []Resp
 
-		for _, v := range s.RegionStats {
+		for _, v := range regionStats {
 			result = append(result, Resp{
 				Region:    v.Region,
 				Revenue:   v.Revenue,
